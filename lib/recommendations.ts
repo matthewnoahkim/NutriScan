@@ -182,7 +182,7 @@ export function generateBasicRecommendations(
   totals: NutrientTotals,
   goals: Goal | null
 ): MealRecommendation[] {
-  if (!goals) return [];
+  if (!goals) return getDefaultMeals();
 
   const recommendations: MealRecommendation[] = [];
   const remainingBudget = (goals.budget_usd || 0) - totals.cost;
@@ -192,59 +192,207 @@ export function generateBasicRecommendations(
   const fiberDeficit = (goals.fiber_g || 0) - totals.fiber_g;
   const calorieDeficit = (goals.calories || 0) - totals.calories;
 
-  // Recommend protein if deficit
+  // Protein-rich meals
   if (proteinDeficit > 20 && remainingBudget > 3) {
-    recommendations.push({
-      name: "Grilled Chicken Breast",
-      description: "6 oz grilled chicken breast with herbs",
-      estimatedCalories: 280,
-      estimatedProtein: 53,
-      estimatedFiber: 0,
-      estimatedCost: 4.5,
-      rationale: `Helps meet your protein goal (${proteinDeficit.toFixed(0)}g remaining)`,
-    });
+    recommendations.push(
+      {
+        name: "Grilled Chicken Breast with Brown Rice",
+        description: "6 oz grilled chicken breast, 1 cup brown rice, steamed broccoli",
+        estimatedCalories: 420,
+        estimatedProtein: 53,
+        estimatedFiber: 4,
+        estimatedCost: 5.5,
+        rationale: `High protein to meet your goal (${proteinDeficit.toFixed(0)}g remaining)`,
+      },
+      {
+        name: "Tuna Salad Bowl",
+        description: "Canned tuna, mixed greens, cherry tomatoes, olive oil",
+        estimatedCalories: 280,
+        estimatedProtein: 30,
+        estimatedFiber: 3,
+        estimatedCost: 3.5,
+        rationale: "Budget-friendly high-protein meal",
+      },
+      {
+        name: "Greek Yogurt Parfait",
+        description: "Plain Greek yogurt, berries, granola, honey",
+        estimatedCalories: 320,
+        estimatedProtein: 20,
+        estimatedFiber: 5,
+        estimatedCost: 3.0,
+        rationale: "Protein-rich breakfast or snack",
+      }
+    );
   }
 
-  // Recommend fiber if deficit
+  // Fiber-rich meals
   if (fiberDeficit > 10 && remainingBudget > 2) {
-    recommendations.push({
-      name: "Black Bean Salad",
-      description: "Mixed greens with black beans, corn, and avocado",
-      estimatedCalories: 320,
-      estimatedProtein: 15,
-      estimatedFiber: 14,
-      estimatedCost: 3.5,
-      rationale: `High in fiber to help meet your goal (${fiberDeficit.toFixed(0)}g remaining)`,
-    });
+    recommendations.push(
+      {
+        name: "Black Bean and Sweet Potato Bowl",
+        description: "Black beans, roasted sweet potato, quinoa, avocado",
+        estimatedCalories: 380,
+        estimatedProtein: 15,
+        estimatedFiber: 16,
+        estimatedCost: 4.0,
+        rationale: `Excellent fiber source (${fiberDeficit.toFixed(0)}g remaining)`,
+      },
+      {
+        name: "Oatmeal with Fruit and Nuts",
+        description: "Steel-cut oats, banana, berries, almonds, cinnamon",
+        estimatedCalories: 350,
+        estimatedProtein: 10,
+        estimatedFiber: 10,
+        estimatedCost: 2.5,
+        rationale: "High-fiber breakfast to meet your goal",
+      },
+      {
+        name: "Lentil Vegetable Soup",
+        description: "Lentils, carrots, celery, tomatoes, spinach",
+        estimatedCalories: 280,
+        estimatedProtein: 18,
+        estimatedFiber: 12,
+        estimatedCost: 3.0,
+        rationale: "Budget-friendly fiber and protein",
+      }
+    );
   }
 
-  // Recommend balanced meal if calorie deficit
-  if (calorieDeficit > 400 && remainingBudget > 5) {
-    recommendations.push({
+  // Balanced meals
+  recommendations.push(
+    {
       name: "Salmon with Quinoa and Vegetables",
-      description: "Baked salmon fillet with quinoa and roasted vegetables",
+      description: "Baked salmon, quinoa, roasted Brussels sprouts, lemon",
       estimatedCalories: 520,
       estimatedProtein: 38,
       estimatedFiber: 8,
       estimatedCost: 7.5,
-      rationale: `Balanced meal to help reach your calorie goal (${calorieDeficit.toFixed(0)} kcal remaining)`,
-    });
-  }
-
-  // If sodium excess, recommend low-sodium option
-  const sodiumExcess = totals.sodium_mg - (goals.sodium_mg || 2300);
-  if (sodiumExcess > 500 && remainingBudget > 2) {
-    recommendations.push({
-      name: "Fresh Fruit Bowl",
-      description: "Mixed berries, melon, and citrus fruits",
-      estimatedCalories: 150,
-      estimatedProtein: 2,
+      rationale: "Balanced omega-3 rich meal",
+    },
+    {
+      name: "Turkey and Veggie Stir-Fry",
+      description: "Ground turkey, bell peppers, snap peas, brown rice, soy sauce",
+      estimatedCalories: 410,
+      estimatedProtein: 32,
+      estimatedFiber: 5,
+      estimatedCost: 5.0,
+      rationale: "Quick and nutritious dinner",
+    },
+    {
+      name: "Egg and Veggie Scramble",
+      description: "3 eggs, spinach, tomatoes, mushrooms, whole wheat toast",
+      estimatedCalories: 320,
+      estimatedProtein: 24,
       estimatedFiber: 6,
-      estimatedCost: 3.0,
-      rationale: "Low-sodium option to balance your daily intake",
-    });
-  }
+      estimatedCost: 2.5,
+      rationale: "Affordable complete breakfast",
+    },
+    {
+      name: "Chicken and Bean Burrito Bowl",
+      description: "Chicken breast, pinto beans, rice, salsa, lettuce, cheese",
+      estimatedCalories: 480,
+      estimatedProtein: 36,
+      estimatedFiber: 10,
+      estimatedCost: 5.5,
+      rationale: "Satisfying and nutritious meal",
+    }
+  );
 
-  return recommendations.slice(0, 3);
+  return recommendations.slice(0, 10);
+}
+
+function getDefaultMeals(): MealRecommendation[] {
+  return [
+    {
+      name: "Grilled Chicken Breast with Brown Rice",
+      description: "6 oz grilled chicken breast, 1 cup brown rice, steamed broccoli",
+      estimatedCalories: 420,
+      estimatedProtein: 53,
+      estimatedFiber: 4,
+      estimatedCost: 5.5,
+      rationale: "High-protein balanced meal",
+    },
+    {
+      name: "Black Bean and Sweet Potato Bowl",
+      description: "Black beans, roasted sweet potato, quinoa, avocado",
+      estimatedCalories: 380,
+      estimatedProtein: 15,
+      estimatedFiber: 16,
+      estimatedCost: 4.0,
+      rationale: "Plant-based fiber-rich option",
+    },
+    {
+      name: "Salmon with Quinoa and Vegetables",
+      description: "Baked salmon, quinoa, roasted Brussels sprouts, lemon",
+      estimatedCalories: 520,
+      estimatedProtein: 38,
+      estimatedFiber: 8,
+      estimatedCost: 7.5,
+      rationale: "Omega-3 rich balanced meal",
+    },
+    {
+      name: "Tuna Salad Bowl",
+      description: "Canned tuna, mixed greens, cherry tomatoes, olive oil",
+      estimatedCalories: 280,
+      estimatedProtein: 30,
+      estimatedFiber: 3,
+      estimatedCost: 3.5,
+      rationale: "Budget-friendly protein source",
+    },
+    {
+      name: "Turkey and Veggie Stir-Fry",
+      description: "Ground turkey, bell peppers, snap peas, brown rice, soy sauce",
+      estimatedCalories: 410,
+      estimatedProtein: 32,
+      estimatedFiber: 5,
+      estimatedCost: 5.0,
+      rationale: "Quick nutritious dinner",
+    },
+    {
+      name: "Egg and Veggie Scramble",
+      description: "3 eggs, spinach, tomatoes, mushrooms, whole wheat toast",
+      estimatedCalories: 320,
+      estimatedProtein: 24,
+      estimatedFiber: 6,
+      estimatedCost: 2.5,
+      rationale: "Complete breakfast option",
+    },
+    {
+      name: "Greek Yogurt Parfait",
+      description: "Plain Greek yogurt, berries, granola, honey",
+      estimatedCalories: 320,
+      estimatedProtein: 20,
+      estimatedFiber: 5,
+      estimatedCost: 3.0,
+      rationale: "Protein-rich breakfast",
+    },
+    {
+      name: "Lentil Vegetable Soup",
+      description: "Lentils, carrots, celery, tomatoes, spinach",
+      estimatedCalories: 280,
+      estimatedProtein: 18,
+      estimatedFiber: 12,
+      estimatedCost: 3.0,
+      rationale: "Budget-friendly complete meal",
+    },
+    {
+      name: "Chicken and Bean Burrito Bowl",
+      description: "Chicken breast, pinto beans, rice, salsa, lettuce, cheese",
+      estimatedCalories: 480,
+      estimatedProtein: 36,
+      estimatedFiber: 10,
+      estimatedCost: 5.5,
+      rationale: "Satisfying balanced meal",
+    },
+    {
+      name: "Oatmeal with Fruit and Nuts",
+      description: "Steel-cut oats, banana, berries, almonds, cinnamon",
+      estimatedCalories: 350,
+      estimatedProtein: 10,
+      estimatedFiber: 10,
+      estimatedCost: 2.5,
+      rationale: "High-fiber breakfast",
+    },
+  ];
 }
 

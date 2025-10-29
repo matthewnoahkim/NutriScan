@@ -16,7 +16,11 @@ export default async function AppLayout({
   return (
     <div className="flex min-h-screen">
       <Nav />
-      <main className="flex-1 p-8 bg-background">{children}</main>
+      <main className="flex-1 bg-background">
+        <div className="container mx-auto px-6 py-8 max-w-7xl">
+          {children}
+        </div>
+      </main>
     </div>
   );
 }

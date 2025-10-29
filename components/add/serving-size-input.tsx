@@ -77,9 +77,9 @@ export function ServingSizeInput({
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="text-xl font-semibold flex items-center gap-2">
             <UtensilsCrossed className="h-5 w-5" />
-            Serving Size Reminder
+            Review and Save Entry
           </CardTitle>
           {estimation.confidence !== undefined && (
             <Badge
@@ -99,7 +99,7 @@ export function ServingSizeInput({
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Serving Size Reminder */}
-          <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+          <Card className="border bg-muted/30">
             <CardContent className="pt-6">
               <p className="text-center text-sm text-muted-foreground mb-4">
                 {estimation.servingSize} contains the nutrition values shown below
@@ -136,7 +136,7 @@ export function ServingSizeInput({
           {/* Nutrition Values */}
           <div>
             <h3 className="text-lg font-semibold mb-4">
-              Nutrition per Serving (you can edit these)
+              Nutrition per Serving
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

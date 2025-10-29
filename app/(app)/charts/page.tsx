@@ -7,10 +7,10 @@ export default async function ChartsPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-4xl font-bold">Nutrition Charts</h1>
-        <p className="text-muted-foreground">
-          Visualize your nutrient intake and track progress over time
+      <div className="space-y-2">
+        <h1 className="text-3xl font-semibold tracking-tight">Nutrition Analytics</h1>
+        <p className="text-sm text-muted-foreground">
+          Visualize nutrient intake patterns and compare against your goals
         </p>
       </div>
 

@@ -10,14 +10,16 @@ import {
   BarChart3,
   Settings,
   Lightbulb,
+  Calendar,
 } from "lucide-react";
 
 const links = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/add", label: "Add Food", icon: PlusCircle },
-  { href: "/intake", label: "Intake Table", icon: Table },
-  { href: "/charts", label: "Charts", icon: BarChart3 },
-  { href: "/recommendations", label: "Recommendations", icon: Lightbulb },
+  { href: "/add", label: "Add Entry", icon: PlusCircle },
+  { href: "/recommendations", label: "Meal Ideas", icon: Lightbulb },
+  { href: "/planner", label: "Meal Plan", icon: Calendar },
+  { href: "/intake", label: "Intake Log", icon: Table },
+  { href: "/charts", label: "Analytics", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

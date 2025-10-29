@@ -9,18 +9,23 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-4xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Track your daily nutrition and reach your goals
+      <div className="space-y-2">
+        <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
+        <p className="text-sm text-muted-foreground">
+          Track your daily nutrition intake and monitor progress toward goals
         </p>
       </div>
 
       <QuickActions />
 
-      <DashboardStats entries={entries} goals={goals} />
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-xl font-semibold mb-4">Today's Progress</h2>
+          <DashboardStats entries={entries} goals={goals} />
+        </div>
 
-      <DeficitBadges entries={entries} goals={goals} />
+        <DeficitBadges entries={entries} goals={goals} />
+      </div>
     </div>
   );
 }

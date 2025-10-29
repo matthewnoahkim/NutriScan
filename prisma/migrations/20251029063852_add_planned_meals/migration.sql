@@ -1,0 +1,27 @@
+-- CreateTable
+CREATE TABLE "PlannedMeal" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "servingSize" TEXT,
+    "servings" REAL NOT NULL DEFAULT 1,
+    "price_usd" REAL,
+    "calories" REAL,
+    "protein_g" REAL,
+    "carbs_g" REAL,
+    "fat_g" REAL,
+    "saturated_fat_g" REAL,
+    "fiber_g" REAL,
+    "sugar_g" REAL,
+    "cholesterol_mg" REAL,
+    "sodium_mg" REAL,
+    "potassium_mg" REAL,
+    "calcium_mg" REAL,
+    "iron_mg" REAL,
+    "plannedFor" DATETIME NOT NULL,
+    "isCompleted" BOOLEAN NOT NULL DEFAULT false,
+    "completedAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "PlannedMeal_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);

@@ -5,11 +5,11 @@ export default async function SettingsPage() {
   const goals = await getGoals();
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-4xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">
-          Set your daily nutritional goals and budget
+    <div className="max-w-3xl space-y-8">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-semibold tracking-tight">Goals & Settings</h1>
+        <p className="text-sm text-muted-foreground">
+          Configure your daily nutrition targets and budget preferences
         </p>
       </div>
 

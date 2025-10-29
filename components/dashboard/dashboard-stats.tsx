@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { calculateTotals } from "@/lib/recommendations";
 import { formatNumber, formatCurrency } from "@/lib/utils";
+import { Flame, Beef, Wheat, Droplet, Apple, DollarSign, LucideIcon } from "lucide-react";
 
 interface DashboardStatsProps {
   entries: FoodEntry[];
@@ -14,36 +15,48 @@ interface DashboardStatsProps {
 export function DashboardStats({ entries, goals }: DashboardStatsProps) {
   const totals = calculateTotals(entries);
 
-  const stats = [
+  const stats: Array<{
+    label: string;
+    value: string;
+    goal: number;
+    unit: string;
+    isCurrency?: boolean;
+    icon: LucideIcon;
+  }> = [
     {
       label: "Calories",
       value: formatNumber(totals.calories, 0),
       goal: goals?.calories || 0,
       unit: "kcal",
+      icon: Flame,
     },
     {
       label: "Protein",
       value: formatNumber(totals.protein_g, 1),
       goal: goals?.protein_g || 0,
       unit: "g",
+      icon: Beef,
     },
     {
       label: "Carbs",
       value: formatNumber(totals.carbs_g, 1),
       goal: goals?.carbs_g || 0,
       unit: "g",
+      icon: Wheat,
     },
     {
       label: "Fat",
       value: formatNumber(totals.fat_g, 1),
       goal: goals?.fat_g || 0,
       unit: "g",
+      icon: Droplet,
     },
     {
       label: "Fiber",
       value: formatNumber(totals.fiber_g, 1),
       goal: goals?.fiber_g || 0,
       unit: "g",
+      icon: Apple,
     },
     {
       label: "Cost",
@@ -51,6 +64,7 @@ export function DashboardStats({ entries, goals }: DashboardStatsProps) {
       goal: goals?.budget_usd || 0,
       unit: "",
       isCurrency: true,
+      icon: DollarSign,
     },
   ];
 
@@ -60,10 +74,12 @@ export function DashboardStats({ entries, goals }: DashboardStatsProps) {
         const current = stat.isCurrency ? totals.cost : parseFloat(stat.value);
         const percentage = stat.goal > 0 ? (current / stat.goal) * 100 : 0;
 
+        const Icon = stat.icon;
         return (
           <Card key={stat.label}>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Icon className="h-4 w-4 text-muted-foreground" />
                 {stat.label}
               </CardTitle>
             </CardHeader>

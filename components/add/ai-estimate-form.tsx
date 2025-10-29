@@ -57,7 +57,7 @@ export function AiEstimateForm({ onSaveSuccess }: AiEstimateFormProps) {
         });
       } else {
         toast({
-          title: "Estimation complete!",
+          title: "Estimation complete",
           description: "Review the nutrition information and save.",
         });
       }
@@ -87,7 +87,7 @@ export function AiEstimateForm({ onSaveSuccess }: AiEstimateFormProps) {
       {!estimation ? (
         <Card>
           <CardHeader>
-            <CardTitle>AI Nutrition Estimation</CardTitle>
+            <CardTitle className="text-xl font-semibold">Estimate Nutrition with AI</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>

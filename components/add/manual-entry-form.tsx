@@ -65,15 +65,15 @@ export function ManualEntryForm({ onSaveSuccess }: ManualEntryFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="text-xl font-semibold flex items-center gap-2">
           <UtensilsCrossed className="h-5 w-5" />
-          Manual Nutrition Entry
+          Enter Nutrition Manually
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Serving Size Reminder */}
-          <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+          <Card className="border bg-muted/30">
             <CardContent className="pt-6">
               <p className="text-center text-sm text-muted-foreground mb-4">
                 {servingSize} contains the nutrition values shown below

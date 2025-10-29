@@ -16,18 +16,18 @@ export function UnifiedAddFood() {
 
   const handleSaveSuccess = () => {
     toast({
-      title: "Entry saved!",
-      description: "Your food entry has been added to your intake log.",
+      title: "Entry saved",
+      description: "Food entry added to your intake log.",
     });
     router.push("/dashboard");
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-4xl font-bold">Add Food</h1>
-        <p className="text-muted-foreground">
-          Choose how you'd like to add your food entry
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-semibold tracking-tight">Add Food Entry</h1>
+        <p className="text-sm text-muted-foreground">
+          Scan a nutrition label, estimate with AI, or enter values manually
         </p>
       </div>
 

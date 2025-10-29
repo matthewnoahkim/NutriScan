@@ -6,10 +6,10 @@ export default async function IntakePage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-4xl font-bold">Intake Table</h1>
-        <p className="text-muted-foreground">
-          View and edit your food entries with inline editing
+      <div className="space-y-2">
+        <h1 className="text-3xl font-semibold tracking-tight">Food Intake Log</h1>
+        <p className="text-sm text-muted-foreground">
+          View, edit, and export your complete nutrition history
         </p>
       </div>
 

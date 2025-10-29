@@ -24,7 +24,7 @@ export function DeficitBadges({ entries, goals }: DeficitBadgesProps) {
         <CardContent>
           <p className="text-muted-foreground">
             {goals
-              ? "Great job! You're on track with your goals."
+              ? "All nutritional targets are within range."
               : "Set goals in settings to track your progress."}
           </p>
         </CardContent>

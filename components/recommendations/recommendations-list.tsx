@@ -4,10 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { MealRecommendation } from "@/lib/recommendations";
-import { createEntry } from "@/app/actions/entries";
+import { createPlannedMeal } from "@/app/actions/plannedMeals";
 import { useToast } from "@/components/ui/use-toast";
-import { Sparkles, Plus, Loader2, RefreshCw } from "lucide-react";
+import { Sparkles, CalendarPlus, Loader2 } from "lucide-react";
 import { getAIRecommendations } from "@/app/actions/recommendations";
 
 interface RecommendationsListProps {
@@ -22,8 +23,16 @@ export function RecommendationsList({
   );
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const [addingId, setAddingId] = useState<string | null>(null);
+  const [selectedDates, setSelectedDates] = useState<Record<string, string>>({});
   const { toast } = useToast();
   const router = useRouter();
+
+  // Get tomorrow's date as default
+  const getTomorrowDate = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split("T")[0];
+  };
 
   const handleGetAIRecommendations = async () => {
     setIsLoadingAI(true);
@@ -45,29 +54,34 @@ export function RecommendationsList({
     }
   };
 
-  const handleAddToEntries = async (rec: MealRecommendation) => {
+  const handleAddToPlanner = async (rec: MealRecommendation, index: number) => {
     setAddingId(rec.name);
     try {
-      await createEntry({
+      const dateStr = selectedDates[rec.name] || getTomorrowDate();
+      const plannedDate = new Date(dateStr);
+      plannedDate.setHours(12, 0, 0, 0); // Set to noon
+
+      await createPlannedMeal({
         name: rec.name,
-        source: "manual",
+        description: rec.description,
+        plannedFor: plannedDate,
         servingSize: "1 serving",
         servings: 1,
+        estimatedCost: rec.estimatedCost,
         calories: rec.estimatedCalories,
         protein_g: rec.estimatedProtein,
         fiber_g: rec.estimatedFiber,
-        price_usd: rec.estimatedCost,
       });
 
       toast({
-        title: "Added to entries!",
-        description: `${rec.name} has been added to your intake log.`,
+        title: "Added to meal planner",
+        description: `${rec.name} scheduled for ${new Date(dateStr).toLocaleDateString()}.`,
       });
 
-      router.push("/dashboard");
+      router.push("/planner");
     } catch (error) {
       toast({
-        title: "Failed to add entry",
+        title: "Failed to add meal",
         description: "Please try again.",
         variant: "destructive",
       });
@@ -104,6 +118,7 @@ export function RecommendationsList({
       {recommendations.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground">
+            <Sparkles className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>No recommendations available.</p>
             <p className="text-sm mt-2">
               Set your goals in Settings to get personalized recommendations.
@@ -115,28 +130,9 @@ export function RecommendationsList({
           {recommendations.map((rec, index) => (
             <Card key={index}>
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>{rec.name}</span>
-                  <Button
-                    size="sm"
-                    onClick={() => handleAddToEntries(rec)}
-                    disabled={addingId === rec.name}
-                  >
-                    {addingId === rec.name ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Adding...
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add to Entries
-                      </>
-                    )}
-                  </Button>
-                </CardTitle>
+                <CardTitle>{rec.name}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">
                   {rec.description}
                 </p>
@@ -170,6 +166,47 @@ export function RecommendationsList({
                   <p className="text-sm">
                     <span className="font-semibold">Why:</span> {rec.rationale}
                   </p>
+                </div>
+                
+                {/* Add to Planner Section */}
+                <div className="pt-2 border-t space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                    <div>
+                      <Label htmlFor={`date-${index}`} className="text-sm">
+                        Plan for:
+                      </Label>
+                      <input
+                        id={`date-${index}`}
+                        type="date"
+                        min={new Date().toISOString().split("T")[0]}
+                        value={selectedDates[rec.name] || getTomorrowDate()}
+                        onChange={(e) =>
+                          setSelectedDates({
+                            ...selectedDates,
+                            [rec.name]: e.target.value,
+                          })
+                        }
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      />
+                    </div>
+                    <Button
+                      onClick={() => handleAddToPlanner(rec, index)}
+                      disabled={addingId === rec.name}
+                      className="w-full"
+                    >
+                      {addingId === rec.name ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Adding...
+                        </>
+                      ) : (
+                        <>
+                          <CalendarPlus className="mr-2 h-4 w-4" />
+                          Add to Planner
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>

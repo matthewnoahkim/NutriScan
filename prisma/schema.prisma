@@ -11,8 +11,8 @@ datasource db {
 }
 
 model User {
-  id            String      @id @default(cuid())
-  email         String      @unique
+  id            String        @id @default(cuid())
+  email         String        @unique
   name          String?
   emailVerified DateTime?
   image         String?
@@ -20,7 +20,8 @@ model User {
   sessions      Session[]
   goals         Goal?
   entries       FoodEntry[]
-  createdAt     DateTime    @default(now())
+  plannedMeals  PlannedMeal[]
+  createdAt     DateTime      @default(now())
 }
 
 model Account {
@@ -101,6 +102,33 @@ model FoodEntry {
   ocrText          String?
   aiModel          String?
   capturedAt       DateTime @default(now())
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PlannedMeal {
+  id               String   @id @default(cuid())
+  userId           String
+  name             String
+  description      String?
+  plannedFor       DateTime
+  servingSize      String?
+  servings         Float    @default(1)
+  estimatedCost    Float?
+  calories         Float?
+  protein_g        Float?
+  carbs_g          Float?
+  fat_g            Float?
+  saturated_fat_g  Float?
+  fiber_g          Float?
+  sugar_g          Float?
+  cholesterol_mg   Float?
+  sodium_mg        Float?
+  potassium_mg     Float?
+  calcium_mg       Float?
+  iron_mg          Float?
+  isCompleted      Boolean  @default(false)
+  completedAt      DateTime?
+  createdAt        DateTime @default(now())
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 

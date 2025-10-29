@@ -68,8 +68,8 @@ export function ScanPreview({ parsed, onSaveSuccess }: ScanPreviewProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          Parsed Nutrition
+        <CardTitle className="text-xl font-semibold flex items-center justify-between">
+          Review Scanned Data
           <Badge variant={parsed.confidence > 0.7 ? "default" : "secondary"}>
             {(parsed.confidence * 100).toFixed(0)}% confidence
           </Badge>
@@ -77,23 +77,23 @@ export function ScanPreview({ parsed, onSaveSuccess }: ScanPreviewProps) {
         {(!parsed.hasNutritionFacts || parsed.confidence < 0.3) && (
           <div className="flex items-center gap-2 text-destructive text-sm">
             <AlertTriangle className="h-4 w-4" />
-            Low confidence - please review and edit carefully
+            Low confidence - verify values before saving
           </div>
         )}
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Serving Information Section */}
-          <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border-2 border-blue-200 dark:border-blue-800">
-            <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
-              📏 Serving Size Reminder
+          <div className="p-4 border rounded-lg bg-muted/30">
+            <h3 className="font-semibold mb-2 text-sm uppercase tracking-wide">
+              Serving Information
             </h3>
-            <p className="text-sm text-blue-800 dark:text-blue-200 mb-3">
+            <p className="text-sm text-muted-foreground mb-3">
               {parsed.servingSize || "1 serving"} contains the nutrition values shown below
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="servings" className="text-blue-900 dark:text-blue-100">
+                <Label htmlFor="servings">
                   How many servings did you consume? *
                 </Label>
                 <Input

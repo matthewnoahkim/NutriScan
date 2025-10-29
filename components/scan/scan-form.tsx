@@ -199,8 +199,8 @@ export function ScanForm({ onSaveSuccess }: ScanFormProps) {
 
       // Step 1: Preprocess image for better OCR
       toast({
-        title: "Preprocessing image...",
-        description: "Optimizing image quality for better recognition",
+        title: "Preprocessing image",
+        description: "Optimizing image for text recognition",
       });
 
       const preprocessedBlob = await preprocessImageForOCR(file);
@@ -212,8 +212,8 @@ export function ScanForm({ onSaveSuccess }: ScanFormProps) {
 
       // Step 2: Perform OCR with Tesseract
       toast({
-        title: "Scanning label...",
-        description: "Extracting text from nutrition label",
+        title: "Scanning label",
+        description: "Extracting nutrition information",
       });
 
       worker = await createWorker("eng", 1, {
@@ -244,8 +244,8 @@ export function ScanForm({ onSaveSuccess }: ScanFormProps) {
         console.log("Low confidence detected, attempting AI enhancement...");
         
         toast({
-          title: "Low confidence detected",
-          description: "Attempting AI enhancement...",
+          title: "Enhancing results",
+          description: "Using AI to improve accuracy",
         });
 
         try {
@@ -271,22 +271,22 @@ export function ScanForm({ onSaveSuccess }: ScanFormProps) {
           };
 
           toast({
-            title: "AI enhancement successful!",
-            description: "Nutrition data enhanced with AI vision",
+            title: "Scan complete",
+            description: "Results enhanced with AI",
           });
         } catch (aiError) {
           console.log("AI enhancement not available:", aiError);
           // Continue with OCR-only results
           toast({
-            title: "Using OCR results",
-            description: "AI enhancement unavailable. Please review and edit carefully.",
-            variant: "destructive",
+            title: "Scan complete",
+            description: "Please review and edit values as needed",
+            variant: "default",
           });
         }
       } else {
         toast({
-          title: "Scan successful!",
-          description: "Please review the parsed nutrition information.",
+          title: "Scan complete",
+          description: "Review the extracted nutrition information",
         });
       }
 
@@ -318,7 +318,7 @@ export function ScanForm({ onSaveSuccess }: ScanFormProps) {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Capture or Upload Image</CardTitle>
+          <CardTitle className="text-xl font-semibold">Scan Nutrition Label</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {!isCameraOpen ? (
