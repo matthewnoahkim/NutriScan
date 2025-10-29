@@ -16,14 +16,36 @@ export interface ParsedNutrition extends Partial<NutritionData> {
  * Parse nutrition facts from OCR text
  */
 export function parseNutritionFromOCR(ocrText: string): ParsedNutrition {
+  console.log("=== RAW OCR TEXT ===");
+  console.log(ocrText);
+  console.log("=== END RAW OCR TEXT ===");
+
   const result: ParsedNutrition = {
     confidence: 0,
     hasNutritionFacts: false,
     rawText: ocrText,
   };
 
-  const normalized = normalizeText(ocrText);
-  const lines = normalized.split("\n").map((l) => l.trim());
+  let normalized = normalizeText(ocrText);
+  
+  // If OCR didn't detect line breaks, try to infer them
+  // Split on common patterns like: "word digit" becoming "word\ndigit"
+  if (!normalized.includes("\n") || normalized.split("\n").length < 5) {
+    console.log("OCR didn't detect proper line breaks, attempting to infer them...");
+    normalized = normalized
+      // Add newlines before nutrient keywords
+      .replace(/(Calories|Total Fat|Saturated Fat|Trans Fat|Cholesterol|Sodium|Total Carbohydrate|Dietary Fiber|Total Sugars|Protein|Calcium|Iron|Potassium|Vitamin)/gi, "\n$1")
+      // Add newlines after percentage values
+      .replace(/(\d+%)/g, "$1\n")
+      // Clean up multiple newlines
+      .replace(/\n+/g, "\n");
+  }
+  
+  const lines = normalized.split("\n").map((l) => l.trim()).filter(l => l.length > 0);
+  
+  console.log("=== NORMALIZED LINES ===");
+  lines.forEach((line, i) => console.log(`${i}: ${line}`));
+  console.log("=== END LINES ===");
 
   // Check for nutrition facts header
   const hasHeader = lines.some((line) => {
@@ -151,32 +173,94 @@ export function parseNutritionFromOCR(ocrText: string): ParsedNutrition {
  * Extract a nutrient value from lines of text
  */
 function extractNutrient(lines: string[], keywords: string[]): number | null {
+  const isMineralKeyword = keywords.some((kw) =>
+    ["sodium", "sodio", "potassium", "potasio", "calcium", "calcio", "iron", "hierro"].includes(kw)
+  );
+
   for (const line of lines) {
     const lower = line.toLowerCase();
     
-    // Check if line contains any keyword
-    const hasKeyword = keywords.some((kw) => lower.includes(kw));
-    if (!hasKeyword) continue;
-
-    // Extract number and unit
-    const matches = line.match(/(\d+[.,]?\d*)\s*(mg|g|kcal|kj|cal)?/i);
-    if (!matches) continue;
-
-    const value = parseNutritionNumber(matches[1]);
-    if (value === null) continue;
-
-    const unit = matches[2] ? detectUnit(matches[2]) : null;
+    // Check if line contains any keyword - must start with keyword or have keyword after whitespace
+    const matchingKeyword = keywords.find((kw) => {
+      const keywordRegex = new RegExp(`\\b${kw.toLowerCase()}\\b`, 'i');
+      return keywordRegex.test(lower);
+    });
     
-    // For sodium, potassium, calcium, iron - if unit is g, convert to mg
-    const isMineralKeyword = keywords.some((kw) =>
-      ["sodium", "sodio", "potassium", "potasio", "calcium", "calcio", "iron", "hierro"].includes(kw)
+    if (!matchingKeyword) continue;
+
+    console.log(`Found keyword "${matchingKeyword}" in line: "${line}"`);
+
+    // Create a regex that looks for the keyword followed by a number
+    // This ensures we get the number RIGHT AFTER the keyword, not some random number
+    const keywordPattern = new RegExp(
+      `${matchingKeyword}[^\\d]*(\\d+[.,]?\\d*)\\s*(mg|g|kcal|kj|cal)?`,
+      'gi'
     );
     
-    if (isMineralKeyword && unit === "g") {
-      return value * 1000; // Convert to mg
+    const keywordMatch = keywordPattern.exec(line);
+    if (keywordMatch) {
+      const value = parseNutritionNumber(keywordMatch[1]);
+      if (value !== null && value !== 0) {
+        const unit = keywordMatch[2] ? detectUnit(keywordMatch[2]) : null;
+        
+        // Validation
+        if (!unit) {
+          if (keywords.some(k => k.includes("calor") || k === "energy")) {
+            if (value < 10 || value > 2000) continue;
+          } else if (isMineralKeyword) {
+            if (value > 5000) continue;
+          } else {
+            if (value > 100) continue;
+          }
+        }
+
+        console.log(`✓ Extracted value: ${value}, unit: ${unit}`);
+        
+        if (isMineralKeyword) {
+          if (unit === "g") return value * 1000;
+          return value; // Assume mg for minerals
+        }
+
+        return toStandardUnit(value, unit);
+      }
     }
 
-    return toStandardUnit(value, unit);
+    // Fallback: try multiple extraction strategies if keyword match didn't work
+    const extractionStrategies = [
+      { pattern: /(\d+[.,]?\d*)\s*(mg|g|kcal|kj|cal)\b/gi, hasUnit: true },
+      { pattern: /\b(\d{3,4})\b(?!\s*%)/g, hasUnit: false },
+      { pattern: /\b(\d+[.,]?\d*)\b(?!\s*%)/g, hasUnit: false },
+    ];
+
+    for (const strategy of extractionStrategies) {
+      const matches = [...line.matchAll(strategy.pattern)];
+      
+      for (const match of matches) {
+        const value = parseNutritionNumber(match[1]);
+        if (value === null || value === 0) continue;
+
+        const unit = match[2] ? detectUnit(match[2]) : null;
+        
+        if (!unit) {
+          if (keywords.some(k => k.includes("calor") || k === "energy")) {
+            if (value < 10 || value > 2000) continue;
+          } else if (isMineralKeyword) {
+            if (value > 5000) continue;
+          } else {
+            if (value > 100) continue;
+          }
+        }
+
+        console.log(`✓ Fallback extracted: ${value}, unit: ${unit}`);
+        
+        if (isMineralKeyword) {
+          if (unit === "g") return value * 1000;
+          return value;
+        }
+
+        return toStandardUnit(value, unit);
+      }
+    }
   }
 
   return null;
@@ -196,9 +280,22 @@ export function extractServingSize(ocrText: string): string | null {
       lower.includes("tamaño de la porción") ||
       lower.includes("portion")
     ) {
-      // Extract the value after the label
-      const match = line.match(/[:]\s*(.+)/);
-      if (match) return match[1].trim();
+      console.log(`Found serving size line: "${line}"`);
+      
+      // Try to extract patterns like "1 cup (230g)" or "230g"
+      const patterns = [
+        /serving size[:\s]+(.+?)(?=\s*amount|$)/i,
+        /[:]\s*(.+)/,
+      ];
+      
+      for (const pattern of patterns) {
+        const match = line.match(pattern);
+        if (match) {
+          const servingSize = match[1].trim();
+          console.log(`✓ Extracted serving size: "${servingSize}"`);
+          return servingSize;
+        }
+      }
     }
   }
 

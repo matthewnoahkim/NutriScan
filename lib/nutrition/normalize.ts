@@ -17,11 +17,12 @@ export function gToMg(g: number): number {
   return g * 1000;
 }
 
-// Normalize text by removing extra spaces and standardizing separators
+// Normalize text by removing extra spaces (but preserving newlines) and standardizing separators
 export function normalizeText(text: string): string {
   return text
-    .replace(/\s+/g, " ")
-    .replace(/,/g, ".")
+    .replace(/,/g, ".") // Replace commas with periods for decimal numbers
+    .replace(/[ \t]+/g, " ") // Replace multiple spaces/tabs with single space
+    .replace(/\n\s*\n/g, "\n") // Remove empty lines
     .trim();
 }
 

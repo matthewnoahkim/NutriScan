@@ -160,6 +160,12 @@ export function IntakeTable({ initialEntries }: IntakeTableProps) {
         formatNumber((row.original.fiber_g || 0) * row.original.servings, 1),
     },
     {
+      accessorKey: "sodium_mg",
+      header: "Sodium (mg)",
+      cell: ({ row }) =>
+        formatNumber((row.original.sodium_mg || 0) * row.original.servings, 0),
+    },
+    {
       accessorKey: "price_usd",
       header: "Price",
       cell: ({ row }) =>

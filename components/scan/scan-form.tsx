@@ -7,9 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+// @ts-expect-error - scan-preview might not have type declarations
 import { ScanPreview } from "./scan-preview";
 import { Loader2, Upload } from "lucide-react";
-import { ParsedNutrition } from "@/lib/ocr/parseNutrition";
+import type { ParsedNutrition } from "@/lib/ocr/parseNutrition";
+import { parseNutritionFromOCR, extractServingSize } from "@/lib/ocr/parseNutrition";
+import { createWorker } from "tesseract.js";
 
 export function ScanForm() {
   const [file, setFile] = useState<File | null>(null);
@@ -38,24 +41,38 @@ export function ScanForm() {
     if (!file) return;
 
     setIsScanning(true);
+    let worker = null;
 
     try {
-      const formData = new FormData();
-      formData.append("image", file);
+      console.log("Starting client-side OCR processing...");
 
-      const response = await fetch("/api/ocr", {
-        method: "POST",
-        body: formData,
+      // Create Tesseract worker on the client side
+      worker = await createWorker("eng", 1, {
+        logger: (m) => console.log(m), // Log progress to console
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to scan image");
-      }
+      console.log("Worker created, performing recognition...");
 
-      const data = await response.json();
-      setParsed(data);
+      // Perform OCR on the image
+      const { data } = await worker.recognize(file);
+      
+      console.log("Recognition complete, OCR text length:", data.text.length);
 
-      if (!data.hasNutritionFacts || data.confidence < 0.3) {
+      const ocrText = data.text;
+
+      // Parse nutrition facts from OCR text
+      const parsed = parseNutritionFromOCR(ocrText);
+      const servingSize = extractServingSize(ocrText);
+
+      const result = {
+        ...parsed,
+        servingSize: servingSize || parsed.servingSize,
+      };
+
+      console.log("Parsed nutrition data:", result);
+      setParsed(result);
+
+      if (!result.hasNutritionFacts || result.confidence < 0.3) {
         toast({
           title: "Nutrition facts not detected",
           description:
@@ -70,12 +87,22 @@ export function ScanForm() {
       }
     } catch (error) {
       console.error("Scan error:", error);
+      
       toast({
         title: "Scan failed",
-        description: "Failed to process the image. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to process the image. Please try again.",
         variant: "destructive",
       });
     } finally {
+      // Always terminate worker to prevent memory leaks
+      if (worker) {
+        try {
+          await worker.terminate();
+          console.log("Worker terminated successfully");
+        } catch (e) {
+          console.error("Error terminating worker:", e);
+        }
+      }
       setIsScanning(false);
     }
   };
