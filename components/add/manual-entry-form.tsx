@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,54 +7,52 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { nutritionSchema, NutritionData } from "@/lib/schemas";
-import { ParsedNutrition } from "@/lib/ocr/parseNutrition";
 import { createEntry } from "@/app/actions/entries";
-import { Loader2, AlertTriangle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Loader2, UtensilsCrossed } from "lucide-react";
+import { useState } from "react";
 
-interface ScanPreviewProps {
-  parsed: ParsedNutrition;
+interface ManualEntryFormProps {
   onSaveSuccess: () => void;
 }
 
-export function ScanPreview({ parsed, onSaveSuccess }: ScanPreviewProps) {
+export function ManualEntryForm({ onSaveSuccess }: ManualEntryFormProps) {
   const [isSaving, setIsSaving] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
     watch,
+    formState: { errors },
   } = useForm<NutritionData>({
     resolver: zodResolver(nutritionSchema),
     defaultValues: {
       name: "",
-      servingSize: parsed.servingSize || "",
+      servingSize: "1 serving",
       servings: 1,
-      calories: parsed.calories,
-      protein_g: parsed.protein_g,
-      carbs_g: parsed.carbs_g,
-      fat_g: parsed.fat_g,
-      saturated_fat_g: parsed.saturated_fat_g,
-      fiber_g: parsed.fiber_g,
-      sugar_g: parsed.sugar_g,
-      cholesterol_mg: parsed.cholesterol_mg,
-      sodium_mg: parsed.sodium_mg,
-      potassium_mg: parsed.potassium_mg,
-      calcium_mg: parsed.calcium_mg,
-      iron_mg: parsed.iron_mg,
+      calories: 0,
+      protein_g: 0,
+      carbs_g: 0,
+      fat_g: 0,
+      saturated_fat_g: 0,
+      cholesterol_mg: 0,
+      fiber_g: 0,
+      sugar_g: 0,
+      sodium_mg: 0,
+      potassium_mg: 0,
+      calcium_mg: 0,
+      iron_mg: 0,
     },
   });
 
   const servings = watch("servings") || 1;
+  const servingSize = watch("servingSize") || "1 serving";
 
   const onSubmit = async (data: NutritionData) => {
     setIsSaving(true);
     try {
       await createEntry({
         ...data,
-        source: "scan",
-        ocrText: parsed.rawText,
+        source: "manual",
       });
       onSaveSuccess();
     } catch (error) {
@@ -68,96 +65,106 @@ export function ScanPreview({ parsed, onSaveSuccess }: ScanPreviewProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          Parsed Nutrition
-          <Badge variant={parsed.confidence > 0.7 ? "default" : "secondary"}>
-            {(parsed.confidence * 100).toFixed(0)}% confidence
-          </Badge>
+        <CardTitle className="flex items-center gap-2">
+          <UtensilsCrossed className="h-5 w-5" />
+          Manual Nutrition Entry
         </CardTitle>
-        {(!parsed.hasNutritionFacts || parsed.confidence < 0.3) && (
-          <div className="flex items-center gap-2 text-destructive text-sm">
-            <AlertTriangle className="h-4 w-4" />
-            Low confidence - please review and edit carefully
-          </div>
-        )}
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Serving Information Section */}
-          <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border-2 border-blue-200 dark:border-blue-800">
-            <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
-              📏 Serving Size Reminder
-            </h3>
-            <p className="text-sm text-blue-800 dark:text-blue-200 mb-3">
-              {parsed.servingSize || "1 serving"} contains the nutrition values shown below
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="servings" className="text-blue-900 dark:text-blue-100">
-                  How many servings did you consume? *
-                </Label>
-                <Input
-                  id="servings"
-                  type="number"
-                  step="0.1"
-                  min="0.1"
-                  {...register("servings", { valueAsNumber: true })}
-                  className="font-semibold text-lg"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Total nutrition will be multiplied by this number
-                </p>
+          {/* Serving Size Reminder */}
+          <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+            <CardContent className="pt-6">
+              <p className="text-center text-sm text-muted-foreground mb-4">
+                {servingSize} contains the nutrition values shown below
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="servings">How many servings did you consume? *</Label>
+                  <Input
+                    id="servings"
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    {...register("servings", { valueAsNumber: true })}
+                  />
+                  {errors.servings && (
+                    <p className="text-sm text-destructive mt-1">
+                      {errors.servings.message}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Total nutrition will be multiplied by this number
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="servingSize">Serving Size *</Label>
+                  <Input
+                    id="servingSize"
+                    {...register("servingSize")}
+                    placeholder="e.g., 1 cup (230g)"
+                  />
+                  {errors.servingSize && (
+                    <p className="text-sm text-destructive mt-1">
+                      {errors.servingSize.message}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div>
-                <Label htmlFor="servingSize">Serving Size</Label>
-                <Input id="servingSize" {...register("servingSize")} />
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Basic Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="name">Food Name *</Label>
-              <Input id="name" {...register("name")} />
-              {errors.name && (
-                <p className="text-sm text-destructive">{errors.name.message}</p>
-              )}
-            </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="name">Food Name *</Label>
+                <Input
+                  id="name"
+                  {...register("name")}
+                  placeholder="e.g., Grilled Chicken Breast"
+                />
+                {errors.name && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.name.message}
+                  </p>
+                )}
+              </div>
 
-            <div>
-              <Label htmlFor="price_usd">Price (USD)</Label>
-              <Input
-                id="price_usd"
-                type="number"
-                step="0.01"
-                {...register("price_usd", { valueAsNumber: true })}
-              />
+              <div>
+                <Label htmlFor="price_usd">Price (USD)</Label>
+                <Input
+                  id="price_usd"
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  {...register("price_usd", { valueAsNumber: true })}
+                />
+              </div>
             </div>
           </div>
 
-          {/* Nutrition Values Per Serving */}
-          <div className="space-y-3">
-            <h3 className="font-semibold text-lg">
-              Nutrition Per Serving
-              {servings > 1 && (
-                <span className="text-sm font-normal text-muted-foreground ml-2">
-                  (× {servings} = total consumed)
-                </span>
-              )}
+          {/* Nutrition Values */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">
+              Nutrition per Serving
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="calories">Calories</Label>
+                <Label htmlFor="calories">Calories *</Label>
                 <Input
                   id="calories"
                   type="number"
-                  step="1"
+                  step="0.1"
+                  placeholder="0"
                   {...register("calories", { valueAsNumber: true })}
                 />
-                {servings > 1 && (
-                  <p className="text-xs text-muted-foreground">
-                    Total: {Math.round((parsed.calories || 0) * servings)} cal
+                {errors.calories && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.calories.message}
                   </p>
                 )}
               </div>
@@ -168,13 +175,9 @@ export function ScanPreview({ parsed, onSaveSuccess }: ScanPreviewProps) {
                   id="protein_g"
                   type="number"
                   step="0.1"
+                  placeholder="0"
                   {...register("protein_g", { valueAsNumber: true })}
                 />
-                {servings > 1 && (
-                  <p className="text-xs text-muted-foreground">
-                    Total: {((parsed.protein_g || 0) * servings).toFixed(1)}g
-                  </p>
-                )}
               </div>
 
               <div>
@@ -183,13 +186,9 @@ export function ScanPreview({ parsed, onSaveSuccess }: ScanPreviewProps) {
                   id="carbs_g"
                   type="number"
                   step="0.1"
+                  placeholder="0"
                   {...register("carbs_g", { valueAsNumber: true })}
                 />
-                {servings > 1 && (
-                  <p className="text-xs text-muted-foreground">
-                    Total: {((parsed.carbs_g || 0) * servings).toFixed(1)}g
-                  </p>
-                )}
               </div>
 
               <div>
@@ -198,13 +197,9 @@ export function ScanPreview({ parsed, onSaveSuccess }: ScanPreviewProps) {
                   id="fat_g"
                   type="number"
                   step="0.1"
+                  placeholder="0"
                   {...register("fat_g", { valueAsNumber: true })}
                 />
-                {servings > 1 && (
-                  <p className="text-xs text-muted-foreground">
-                    Total: {((parsed.fat_g || 0) * servings).toFixed(1)}g
-                  </p>
-                )}
               </div>
 
               <div>
@@ -213,6 +208,7 @@ export function ScanPreview({ parsed, onSaveSuccess }: ScanPreviewProps) {
                   id="saturated_fat_g"
                   type="number"
                   step="0.1"
+                  placeholder="0"
                   {...register("saturated_fat_g", { valueAsNumber: true })}
                 />
               </div>
@@ -223,6 +219,7 @@ export function ScanPreview({ parsed, onSaveSuccess }: ScanPreviewProps) {
                   id="cholesterol_mg"
                   type="number"
                   step="1"
+                  placeholder="0"
                   {...register("cholesterol_mg", { valueAsNumber: true })}
                 />
               </div>
@@ -233,6 +230,7 @@ export function ScanPreview({ parsed, onSaveSuccess }: ScanPreviewProps) {
                   id="fiber_g"
                   type="number"
                   step="0.1"
+                  placeholder="0"
                   {...register("fiber_g", { valueAsNumber: true })}
                 />
               </div>
@@ -243,6 +241,7 @@ export function ScanPreview({ parsed, onSaveSuccess }: ScanPreviewProps) {
                   id="sugar_g"
                   type="number"
                   step="0.1"
+                  placeholder="0"
                   {...register("sugar_g", { valueAsNumber: true })}
                 />
               </div>
@@ -252,7 +251,8 @@ export function ScanPreview({ parsed, onSaveSuccess }: ScanPreviewProps) {
                 <Input
                   id="sodium_mg"
                   type="number"
-                  step="1"
+                  step="0.1"
+                  placeholder="0"
                   {...register("sodium_mg", { valueAsNumber: true })}
                 />
               </div>
@@ -262,7 +262,8 @@ export function ScanPreview({ parsed, onSaveSuccess }: ScanPreviewProps) {
                 <Input
                   id="potassium_mg"
                   type="number"
-                  step="1"
+                  step="0.1"
+                  placeholder="0"
                   {...register("potassium_mg", { valueAsNumber: true })}
                 />
               </div>
@@ -272,7 +273,8 @@ export function ScanPreview({ parsed, onSaveSuccess }: ScanPreviewProps) {
                 <Input
                   id="calcium_mg"
                   type="number"
-                  step="1"
+                  step="0.1"
+                  placeholder="0"
                   {...register("calcium_mg", { valueAsNumber: true })}
                 />
               </div>
@@ -283,20 +285,26 @@ export function ScanPreview({ parsed, onSaveSuccess }: ScanPreviewProps) {
                   id="iron_mg"
                   type="number"
                   step="0.1"
+                  placeholder="0"
                   {...register("iron_mg", { valueAsNumber: true })}
                 />
               </div>
             </div>
           </div>
 
-          <Button type="submit" disabled={isSaving} className="w-full" size="lg">
+          <Button
+            type="submit"
+            disabled={isSaving}
+            className="w-full"
+            size="lg"
+          >
             {isSaving ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 Saving...
               </>
             ) : (
-              "Save Entry"
+              `Save Entry (${servings} ${servings === 1 ? "serving" : "servings"})`
             )}
           </Button>
         </form>

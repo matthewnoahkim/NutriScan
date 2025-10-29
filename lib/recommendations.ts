@@ -5,6 +5,8 @@ export interface NutrientTotals {
   protein_g: number;
   carbs_g: number;
   fat_g: number;
+  saturated_fat_g: number;
+  cholesterol_mg: number;
   fiber_g: number;
   sugar_g: number;
   sodium_mg: number;
@@ -28,6 +30,8 @@ export function calculateTotals(entries: FoodEntry[]): NutrientTotals {
       protein_g: totals.protein_g + (entry.protein_g || 0) * entry.servings,
       carbs_g: totals.carbs_g + (entry.carbs_g || 0) * entry.servings,
       fat_g: totals.fat_g + (entry.fat_g || 0) * entry.servings,
+      saturated_fat_g: totals.saturated_fat_g + (entry.saturated_fat_g || 0) * entry.servings,
+      cholesterol_mg: totals.cholesterol_mg + (entry.cholesterol_mg || 0) * entry.servings,
       fiber_g: totals.fiber_g + (entry.fiber_g || 0) * entry.servings,
       sugar_g: totals.sugar_g + (entry.sugar_g || 0) * entry.servings,
       sodium_mg: totals.sodium_mg + (entry.sodium_mg || 0) * entry.servings,
@@ -42,6 +46,8 @@ export function calculateTotals(entries: FoodEntry[]): NutrientTotals {
       protein_g: 0,
       carbs_g: 0,
       fat_g: 0,
+      saturated_fat_g: 0,
+      cholesterol_mg: 0,
       fiber_g: 0,
       sugar_g: 0,
       sodium_mg: 0,
@@ -101,10 +107,34 @@ export function calculateDeficits(
     });
   }
 
+  if (goals.saturated_fat_g) {
+    const deficit = goals.saturated_fat_g - totals.saturated_fat_g;
+    if (deficit < 0) {
+      deficits.push({
+        nutrient: "Saturated Fat",
+        deficit: Math.abs(deficit),
+        unit: "g",
+        isExcess: true,
+      });
+    }
+  }
+
+  if (goals.cholesterol_mg) {
+    const deficit = goals.cholesterol_mg - totals.cholesterol_mg;
+    if (deficit < 0) {
+      deficits.push({
+        nutrient: "Cholesterol",
+        deficit: Math.abs(deficit),
+        unit: "mg",
+        isExcess: true,
+      });
+    }
+  }
+
   if (goals.fiber_g) {
     const deficit = goals.fiber_g - totals.fiber_g;
     deficits.push({
-      nutrient: "Fiber",
+      nutrient: "Dietary Fiber",
       deficit: Math.abs(deficit),
       unit: "g",
       isExcess: deficit < 0,
@@ -115,7 +145,7 @@ export function calculateDeficits(
     const deficit = goals.sugar_g - totals.sugar_g;
     if (deficit < 0) {
       deficits.push({
-        nutrient: "Sugar",
+        nutrient: "Added Sugars",
         deficit: Math.abs(deficit),
         unit: "g",
         isExcess: true,

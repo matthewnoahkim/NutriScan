@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
-  ScanLine,
   PlusCircle,
   Table,
   BarChart3,
@@ -15,7 +14,6 @@ import {
 
 const links = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/scan", label: "Scan Label", icon: ScanLine },
   { href: "/add", label: "Add Food", icon: PlusCircle },
   { href: "/intake", label: "Intake Table", icon: Table },
   { href: "/charts", label: "Charts", icon: BarChart3 },

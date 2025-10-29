@@ -110,6 +110,26 @@ export function parseNutritionFromOCR(ocrText: string): ParsedNutrition {
     fieldsFound++;
   }
 
+  // Parse saturated fat
+  const saturatedFatMatch = extractNutrient(lines, [
+    "saturated fat",
+    "grasa saturada",
+  ]);
+  if (saturatedFatMatch) {
+    result.saturated_fat_g = saturatedFatMatch;
+    fieldsFound++;
+  }
+
+  // Parse cholesterol
+  const cholesterolMatch = extractNutrient(lines, [
+    "cholesterol",
+    "colesterol",
+  ]);
+  if (cholesterolMatch) {
+    result.cholesterol_mg = cholesterolMatch;
+    fieldsFound++;
+  }
+
   // Parse fiber
   const fiberMatch = extractNutrient(lines, [
     "dietary fiber",

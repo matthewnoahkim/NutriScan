@@ -76,15 +76,23 @@ Be as accurate as possible and provide your confidence level (0-1) based on how 
               },
               fat_g: {
                 type: "number",
-                description: "Fat in grams",
+                description: "Total fat in grams",
+              },
+              saturated_fat_g: {
+                type: "number",
+                description: "Saturated fat in grams",
+              },
+              cholesterol_mg: {
+                type: "number",
+                description: "Cholesterol in milligrams",
               },
               fiber_g: {
                 type: "number",
-                description: "Fiber in grams",
+                description: "Dietary fiber in grams",
               },
               sugar_g: {
                 type: "number",
-                description: "Sugar in grams",
+                description: "Added sugars in grams",
               },
               sodium_mg: {
                 type: "number",
@@ -147,6 +155,8 @@ Be as accurate as possible and provide your confidence level (0-1) based on how 
     protein_g: result.protein_g,
     carbs_g: result.carbs_g,
     fat_g: result.fat_g,
+    saturated_fat_g: result.saturated_fat_g,
+    cholesterol_mg: result.cholesterol_mg,
     fiber_g: result.fiber_g,
     sugar_g: result.sugar_g,
     sodium_mg: result.sodium_mg,

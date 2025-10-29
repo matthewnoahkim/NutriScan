@@ -36,16 +36,31 @@ export function NutritionCharts({ entries, goals }: NutritionChartsProps) {
       name: "Macros",
       Protein: totals.protein_g,
       Carbs: totals.carbs_g,
-      Fat: totals.fat_g,
+      "Total Fat": totals.fat_g,
+      "Saturated Fat": totals.saturated_fat_g,
     },
   ];
 
   // Radar chart data for micronutrients
   const microData = [
     {
-      nutrient: "Fiber",
+      nutrient: "Dietary Fiber",
       value: goals?.fiber_g
         ? (totals.fiber_g / goals.fiber_g) * 100
+        : 0,
+      fullMark: 100,
+    },
+    {
+      nutrient: "Added Sugars",
+      value: goals?.sugar_g
+        ? (totals.sugar_g / goals.sugar_g) * 100
+        : 0,
+      fullMark: 100,
+    },
+    {
+      nutrient: "Cholesterol",
+      value: goals?.cholesterol_mg
+        ? (totals.cholesterol_mg / goals.cholesterol_mg) * 100
         : 0,
       fullMark: 100,
     },
@@ -127,7 +142,8 @@ export function NutritionCharts({ entries, goals }: NutritionChartsProps) {
               <Legend />
               <Bar dataKey="Protein" fill="#8b5cf6" stackId="a" />
               <Bar dataKey="Carbs" fill="#3b82f6" stackId="a" />
-              <Bar dataKey="Fat" fill="#f59e0b" stackId="a" />
+              <Bar dataKey="Total Fat" fill="#f59e0b" stackId="a" />
+              <Bar dataKey="Saturated Fat" fill="#ef4444" stackId="a" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

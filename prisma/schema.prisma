@@ -59,44 +59,48 @@ model VerificationToken {
 }
 
 model Goal {
-  id           String   @id @default(cuid())
-  userId       String   @unique
-  calories     Int?
-  protein_g    Float?
-  carbs_g      Float?
-  fat_g        Float?
-  fiber_g      Float?
-  sugar_g      Float?
-  sodium_mg    Float?
-  potassium_mg Float?
-  calcium_mg   Float?
-  iron_mg      Float?
-  budget_usd   Float?
-  updatedAt    DateTime @updatedAt
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  calories         Int?
+  protein_g        Float?
+  carbs_g          Float?
+  fat_g            Float?
+  saturated_fat_g  Float?
+  fiber_g          Float?
+  sugar_g          Float?
+  cholesterol_mg   Float?
+  sodium_mg        Float?
+  potassium_mg     Float?
+  calcium_mg       Float?
+  iron_mg          Float?
+  budget_usd       Float?
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model FoodEntry {
-  id           String   @id @default(cuid())
-  userId       String
-  name         String
-  source       String   // "scan" | "ai" | "manual"
-  servingSize  String?
-  servings     Float    @default(1)
-  price_usd    Float?
-  calories     Float?
-  protein_g    Float?
-  carbs_g      Float?
-  fat_g        Float?
-  fiber_g      Float?
-  sugar_g      Float?
-  sodium_mg    Float?
-  potassium_mg Float?
-  calcium_mg   Float?
-  iron_mg      Float?
-  ocrText      String?
-  aiModel      String?
-  capturedAt   DateTime @default(now())
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String   @id @default(cuid())
+  userId           String
+  name             String
+  source           String   // "scan" | "ai" | "manual"
+  servingSize      String?
+  servings         Float    @default(1)
+  price_usd        Float?
+  calories         Float?
+  protein_g        Float?
+  carbs_g          Float?
+  fat_g            Float?
+  saturated_fat_g  Float?
+  fiber_g          Float?
+  sugar_g          Float?
+  cholesterol_mg   Float?
+  sodium_mg        Float?
+  potassium_mg     Float?
+  calcium_mg       Float?
+  iron_mg          Float?
+  ocrText          String?
+  aiModel          String?
+  capturedAt       DateTime @default(now())
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
