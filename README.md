@@ -4,13 +4,12 @@ A production-ready nutrition tracking application that scans food labels, estima
 
 ## Features
 
-- 📸 **Scan Nutrition Labels** - Use OCR (Tesseract.js) to extract nutrition facts from food packaging
-- 🤖 **AI Nutrition Estimation** - Estimate nutrition for any food using OpenAI
-- 📊 **Visual Analytics** - Interactive charts showing macro/micronutrient intake
-- 📈 **Intake Tracking** - Spreadsheet-like table with inline editing, CSV/XLSX export
-- 🎯 **Goals & Budget** - Set daily nutritional goals and spending limits
-- 💡 **Smart Recommendations** - Get personalized meal suggestions based on deficits and budget
-- ✅ **Quality Assurance** - Comprehensive unit tests and E2E tests
+- Use OCR (Tesseract.js) to extract nutrition facts from food packaging
+- Use Open AI to keep track of your nutritional intake
+- Visualize charts showing macro/micronutrient intake
+- Spreadsheets and tables table with CSV/XLSX export
+- Set and keep track of daily nutritional goals & budget
+- Receive smart recommendations and get personalized meal suggestions based on deficits and budget
 
 ## Tech Stack
 
@@ -20,7 +19,7 @@ A production-ready nutrition tracking application that scans food labels, estima
 - **Forms**: React Hook Form + Zod validation
 - **OCR**: Tesseract.js (client-side)
 - **AI**: OpenAI API with function calling
-- **Database**: Prisma + SQLite (dev) / PostgreSQL (production)
+- **Database**: Prisma + SQLite
 - **Auth**: NextAuth.js
 - **State**: Server Actions + TanStack Query
 - **Testing**: Vitest (unit) + Playwright (E2E)
@@ -74,7 +73,7 @@ This will:
 pnpm dev
 ```
 
-Visit [http://localhost:3000](http://localhost:3000) and sign in with `demo@nutriscan.app` or just `demo`.
+Visit [http://localhost:3000](http://localhost:3000) and sign in with `demo@nutriscan.app`.
 
 ## Scripts
 
@@ -132,87 +131,6 @@ NutriScan/
 └── public/                  # Static assets
 ```
 
-## Key Features Explained
-
-### 1. Scan Nutrition Label
-
-- Upload a photo of a nutrition facts label
-- Tesseract.js performs OCR to extract text
-- Intelligent parsing detects and normalizes nutrients
-- Handles various units (mg/g, kJ/kcal)
-- Confidence scoring based on fields detected
-- If confidence is low, prompts user to rescan
-- All nutrients are editable before saving
-
-### 2. AI Nutrition Estimation
-
-- Enter food name, brand, and serving size
-- OpenAI estimates nutrition using function calling
-- Returns structured data with confidence score
-- Low-confidence banner appears if < 60%
-- All estimates are fully editable
-
-### 3. Dashboard
-
-- Today's totals vs. daily goals with progress bars
-- Deficit/excess badges (e.g., "Fiber −12g", "Sodium +550mg")
-- Quick action buttons: Scan, Add Food, Recommendations
-- Real-time updates
-
-### 4. Intake Table
-
-- Spreadsheet-like view of all food entries
-- Search/filter functionality
-- Sort by any column
-- Delete entries
-- Export to CSV or XLSX
-
-### 5. Charts
-
-- **Macronutrient Breakdown**: Stacked bar chart for protein/carbs/fat
-- **Micronutrient Radar**: Shows progress toward goals for fiber, sodium, potassium, calcium, iron
-- **7-Day Trend**: Line chart tracking calories and protein over time
-
-### 6. Goals & Budget
-
-- Set daily targets for calories and all nutrients
-- Set daily spending budget
-- All goals are optional
-- Progress tracked on dashboard
-
-### 7. Meal Recommendations
-
-- Rules-based engine analyzes deficits and excesses
-- Suggests 3 meals that fill nutritional gaps
-- Respects remaining budget
-- Optional AI enhancement for personalized suggestions
-- One-click "Add to Entries" for each recommendation
-
-### 8. Disclaimers
-
-- Footer in navigation
-- Recommendations page header
-- "Informational only, not medical advice"
-- "OCR and AI may contain errors"
-
-## Data Model
-
-### User
-- Email, name, authentication details
-- One-to-one with Goals
-- One-to-many with FoodEntry
-
-### Goal
-- Daily targets: calories, protein, carbs, fat, fiber, sugar, sodium, potassium, calcium, iron
-- Daily budget in USD
-
-### FoodEntry
-- Name, source (scan/ai/manual)
-- Serving size, servings, price
-- All macro and micronutrients
-- OCR text and AI model (for audit)
-- Timestamp
-
 ## Testing
 
 ### Unit Tests (Vitest)
@@ -257,82 +175,9 @@ Happy path test:
 - **Low confidence**: Warning badges on scan and AI previews
 - **API errors**: Toast notifications with retry options
 
-## Accessibility
-
-- Semantic HTML
-- ARIA labels where needed
-- Keyboard navigation
-- Focus management
-- Color contrast meets WCAG AA
-- Responsive design (mobile-first)
-
-## Deployment
-
-### Environment Variables (Production)
-
-```env
-DATABASE_URL="postgresql://..."
-NEXTAUTH_URL="https://your-domain.com"
-NEXTAUTH_SECRET="production-secret"
-OPENAI_API_KEY="sk-..."
-```
-
-### Build
-
-```bash
-pnpm build
-pnpm start
-```
-
-### Database Migration
-
-For production (PostgreSQL):
-
-1. Update `DATABASE_URL` in `.env`
-2. Update `prisma/schema.prisma` datasource to `postgresql`
-3. Run `pnpm prisma:migrate`
-
-## Demo User
-
-The seed script creates a demo user:
-
-- **Email**: `demo@nutriscan.app`
-- **Password**: Not required (magic link)
-- Quick sign-in: Just type `demo` in the email field
-
-Demo data includes:
-- 5 example food entries (oatmeal, chicken, salad, yogurt, chips)
-- Default goals (2,500 kcal, 130g protein, 30g fiber, etc.)
-
-## Roadmap / Nice-to-Haves
-
-- [ ] Barcode lookup (UPC → brand + serving size)
-- [ ] PWA with offline support (cache last 30 days)
-- [ ] Multi-profile households
-- [ ] Meal planning calendar
-- [ ] Recipe builder with nutrition calculation
-- [ ] Integration with fitness trackers
-- [ ] Social features (share meals, challenges)
-
 ## License
 
 MIT
-
-## Contributing
-
-Contributions welcome! Please:
-
-1. Fork the repo
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
-
-## Support
-
-For issues or questions, please open a GitHub issue.
-
----
 
 **Disclaimer**: NutriScan provides informational estimates only and does not replace professional medical or dietary advice. OCR and AI estimates may contain errors. Always verify labels and consult a healthcare professional for personalized guidance.
 
